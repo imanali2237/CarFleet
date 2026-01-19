@@ -1,19 +1,55 @@
 {
-  "name": "carfleet",
+  "name": "carfleet-logging-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Production-ready Express.js logging system with Winston and Morgan featuring request/response logging, error tracking, and daily log rotation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "express",
+    "logging",
+    "winston",
+    "morgan",
+    "typescript",
+    "nodejs",
+    "server",
+    "middleware",
+    "log-rotation",
+    "request-logger",
+    "error-tracking"
+  ],
+  "author": "imanali2237",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imanali2237/CarFleet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/imanali2237/CarFleet/issues"
+  },
+  "homepage": "https://github.com/imanali2237/CarFleet#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
   "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^25.0.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "morgan": "^1.10.1",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

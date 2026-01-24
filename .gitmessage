@@ -1,0 +1,46 @@
+# <type>(<scope>): <subject>
+# <BLANK LINE>
+# <body>
+# <BLANK LINE>
+# <footer>
+
+# Example:
+# feat(auth): add JWT authentication
+# 
+# Add JWT token generation and validation for user authentication.
+# This allows users to securely access protected endpoints.
+# 
+# Closes #123
+# Breaking change: API now requires Authorization header
+
+# <type> must be one of:
+#   feat    - A new feature
+#   fix     - A bug fix
+#   refactor - Code refactoring without feature changes
+#   perf    - Performance improvements
+#   docs    - Documentation changes
+#   style   - Code style changes (formatting, missing semicolons, etc)
+#   test    - Test additions/updates
+#   chore   - Build, dependency, or configuration changes
+#   ci      - CI/CD configuration changes
+#   revert  - Reverting a previous commit
+
+# <scope> should be the area of the codebase:
+#   auth, users, database, api, middleware, utils, config, logging, etc
+
+# <subject> rules:
+#   - Use imperative, present tense: "add" not "added" or "adds"
+#   - Don't capitalize first letter
+#   - No period (.) at the end
+#   - Limit to 50 characters
+
+# <body> rules:
+#   - Explain WHAT and WHY, not HOW
+#   - Wrap at 72 characters
+#   - Separate from subject with blank line
+#   - Each paragraph separated by blank line
+
+# <footer> rules:
+#   - Reference issue tickets: Closes #123, Fixes #456
+#   - Note breaking changes: Breaking change: description
+#   - Format: Keyword: value

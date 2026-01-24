@@ -40,3 +40,9 @@ coverage/
 .cache/
 
 /src/generated/prisma
+
+# Generated Prisma config files
+prisma.config.js
+prisma.config.d.ts
+prisma.config.d.ts.map
+prisma.config.js.map

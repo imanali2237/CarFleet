@@ -3,6 +3,7 @@ import { Server } from 'http';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import { requestLogger } from './middlewares/requestLogger';
 import { responseLogger, errorLogger } from './middlewares/responseLogger';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
@@ -10,6 +11,7 @@ import { setupLogDirectories } from './utils/setupLogs';
 import { generateRequestId } from './utils/requestId';
 import logger from './config/logger.config';
 import { env } from './config/env.config';
+import { swaggerSpec } from './config/swagger.config';
 import healthRoutes from './routes/health.routes';
 import { initializeRedis, closeRedis, getRedisClient } from './services/redis';
 
@@ -78,6 +80,20 @@ app.use(responseLogger);
 // ===================================
 // ROUTES
 // ===================================
+
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayOperationId: true,
+  },
+}));
+
+// API documentation redirect
+app.get('/api/docs', (req: Request, res: Response) => {
+  res.redirect('/api-docs');
+});
 
 // Health check routes (no auth required)
 app.use('/health', healthRoutes);

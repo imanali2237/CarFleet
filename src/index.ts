@@ -1,8 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import { requestLogger } from './middlewares/requestLogger';
 import { responseLogger, errorLogger } from './middlewares/responseLogger';
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
 import { setupLogDirectories } from './utils/setupLogs';
 import logger from './config/logger.config';
+import { env } from './config/env.config';
+import healthRoutes from './routes/health.routes';
 
 // Create Express app
 const app: Application = express();
@@ -21,59 +24,72 @@ app.use(requestLogger);
 app.use(responseLogger);
 
 // ===================================
-// YOUR ROUTES GO HERE
+// ROUTES
 // ===================================
 
-app.get('/', (req: Request, res:  Response) => {
-  res.json({ message: 'Hello World!' });
+// Health check routes (no auth required)
+app.use('/health', healthRoutes);
+
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    message: 'CarFleet API',
+    version: '1.0.0',
+    environment: env.NODE_ENV,
+  });
 });
 
 app.post('/api/users', (req: Request, res: Response) => {
   logger.info('Creating new user', { body: req.body });
-  res.status(201).json({ 
-    id: 1, 
+  res.status(201).json({
+    id: 1,
     username: req.body.username,
-    message: 'User created successfully' 
+    message: 'User created successfully',
   });
 });
 
-app.get('/api/error', (req: Request, res: Response) => {
-  throw new Error('Test error for logging');
-});
+// ===================================
+// ERROR HANDLING
+// ===================================
 
 // 404 handler
-app.use((req: Request, res: Response) => {
-  logger.warn('Route not found', {
-    method: req.method,
-    url: req.originalUrl,
-    ip: req.socket.remoteAddress,
-  });
-  
-  res.status(404).json({ 
-    error: 'Not Found',
-    path: req.originalUrl 
-  });
-});
+app.use(notFoundHandler);
 
 // ✅ GLOBAL ERROR LOGGING MIDDLEWARE
 app.use(errorLogger);
 
-// Final error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({ 
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
+// Global error handler
+app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 3000;
+// ===================================
+// SERVER STARTUP
+// ===================================
 
-app.listen(PORT, () => {
-  logger.info(`🚗 CarFleet Server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🚗 CarFleet Logging Server running on http://localhost:${PORT}`);
+const server = app.listen(env.PORT, () => {
+  logger.info(`🚗 CarFleet Server running on port ${env.PORT}`);
+  logger.info(`Environment: ${env.NODE_ENV}`);
+  logger.info(`Health check: http://localhost:${env.PORT}/health`);
+  console.log(`🚗 CarFleet Server running on http://localhost:${env.PORT}`);
   console.log(`📊 Logs directory: ${process.cwd()}/logs`);
+  console.log(`💚 Health check: http://localhost:${env.PORT}/health`);
 });
+
+// Graceful shutdown
+const gracefulShutdown = async (signal: string) => {
+  logger.info(`${signal} received, closing HTTP server gracefully...`);
+
+  server.close(() => {
+    logger.info('HTTP server closed');
+    process.exit(0);
+  });
+
+  // Force close after 10 seconds
+  setTimeout(() => {
+    logger.error('Forcing shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 export default app;

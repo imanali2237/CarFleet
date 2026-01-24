@@ -1,4 +1,4 @@
-import "dotenv/config";
+import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
 import logger from '../config/logger.config';
@@ -23,10 +23,7 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter,
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error'],
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     errorFormat: process.env.NODE_ENV === 'development' ? 'pretty' : 'minimal',
   });
 
@@ -59,7 +56,8 @@ process.on('SIGTERM', async () => {
 });
 
 // Log connection on startup
-prisma.$connect()
+prisma
+  .$connect()
   .then(() => {
     logger.info('✅ Prisma connected to database successfully');
   })

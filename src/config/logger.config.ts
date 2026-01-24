@@ -43,10 +43,7 @@ const format = winston.format.combine(
 const transports: winston.transport[] = [
   // Console transport for development
   new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize({ all: true }),
-      winston.format.simple()
-    ),
+    format: winston.format.combine(winston.format.colorize({ all: true }), winston.format.simple()),
   }),
 
   // Error logs - daily rotation
@@ -56,10 +53,7 @@ const transports: winston.transport[] = [
     level: 'error',
     maxSize: '20m',
     maxFiles: '14d',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    ),
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   }),
 
   // Combined logs - daily rotation
@@ -68,10 +62,7 @@ const transports: winston.transport[] = [
     datePattern: 'YYYY-MM-DD',
     maxSize: '20m',
     maxFiles: '14d',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    ),
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   }),
 
   // HTTP request logs - daily rotation
@@ -81,13 +72,9 @@ const transports: winston.transport[] = [
     level: 'http',
     maxSize: '20m',
     maxFiles: '14d',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    ),
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   }),
 ];
-
 
 // Create logger instance
 const logger = winston.createLogger({

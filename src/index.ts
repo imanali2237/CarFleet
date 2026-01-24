@@ -1,4 +1,5 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
+import { Server } from 'http';
 import { requestLogger } from './middlewares/requestLogger';
 import { responseLogger, errorLogger } from './middlewares/responseLogger';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
@@ -6,9 +7,11 @@ import { setupLogDirectories } from './utils/setupLogs';
 import logger from './config/logger.config';
 import { env } from './config/env.config';
 import healthRoutes from './routes/health.routes';
+import { initializeRedis, closeRedis } from './services/redis';
 
 // Create Express app
 const app: Application = express();
+let server: Server | null = null;
 
 // Setup log directories
 setupLogDirectories();
@@ -63,33 +66,49 @@ app.use(errorHandler);
 // ===================================
 // SERVER STARTUP
 // ===================================
+const startServer = async () => {
+  try {
+    // Initialize Redis
+    await initializeRedis();
 
-const server = app.listen(env.PORT, () => {
-  logger.info(`🚗 CarFleet Server running on port ${env.PORT}`);
-  logger.info(`Environment: ${env.NODE_ENV}`);
-  logger.info(`Health check: http://localhost:${env.PORT}/health`);
-  console.log(`🚗 CarFleet Server running on http://localhost:${env.PORT}`);
-  console.log(`📊 Logs directory: ${process.cwd()}/logs`);
-  console.log(`💚 Health check: http://localhost:${env.PORT}/health`);
-});
+    server = app.listen(env.PORT, () => {
+      logger.info(`🚗 CarFleet Server running on port ${env.PORT}`);
+      logger.info(`Environment: ${env.NODE_ENV}`);
+      logger.info(`Health check: http://localhost:${env.PORT}/health`);
+      console.log(`🚗 CarFleet Server running on http://localhost:${env.PORT}`);
+      console.log(`📊 Logs directory: ${process.cwd()}/logs`);
+      console.log(`💚 Health check: http://localhost:${env.PORT}/health`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
 
 // Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   logger.info(`${signal} received, closing HTTP server gracefully...`);
 
-  server.close(() => {
-    logger.info('HTTP server closed');
-    process.exit(0);
-  });
+  // Close Redis connection
+  await closeRedis();
 
-  // Force close after 10 seconds
-  setTimeout(() => {
-    logger.error('Forcing shutdown after timeout');
-    process.exit(1);
-  }, 10000);
+  if (server) {
+    server.close(() => {
+      logger.info('HTTP server closed');
+      process.exit(0);
+    });
+
+    // Force close after 10 seconds
+    setTimeout(() => {
+      logger.error('Forcing shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  }
 };
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+startServer();
 
 export default app;

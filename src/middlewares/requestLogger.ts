@@ -28,13 +28,13 @@ morgan.token('request-body', (req: any) => {
     // Mask sensitive fields
     const sanitizedBody = { ...req.body };
     const sensitiveFields = ['password', 'token', 'apiKey', 'secret', 'authorization'];
-    
-    sensitiveFields.forEach(field => {
+
+    sensitiveFields.forEach((field) => {
       if (sanitizedBody[field]) {
         sanitizedBody[field] = '***REDACTED***';
       }
     });
-    
+
     return JSON.stringify(sanitizedBody);
   }
   return '-';
@@ -48,7 +48,7 @@ morgan.token('query-params', (req: Request) => {
 });
 
 morgan.token('user-id', (req: any) => {
-  return req.user?. id || req.userId || 'anonymous';
+  return req.user?.id || req.userId || 'anonymous';
 });
 
 // Detailed format for production
@@ -57,13 +57,13 @@ const productionFormat = JSON.stringify({
   ip: ':real-ip',
   method: ':method',
   url: ':url',
-  status:  ':status',
+  status: ':status',
   contentLength: ':res[content-length]',
   responseTime: ':response-time ms',
   userAgent: ':user-agent',
   userId: ':user-id',
   requestBody: ':request-body',
-  queryParams:  ':query-params',
+  queryParams: ':query-params',
   referrer: ':referrer',
 });
 
@@ -71,9 +71,7 @@ const productionFormat = JSON.stringify({
 const developmentFormat = ': real-ip : method :url :status :response-time ms - :user-agent';
 
 // Choose format based on environment
-const morganFormat = process.env.NODE_ENV === 'production' 
-  ? productionFormat 
-  : developmentFormat;
+const morganFormat = process.env.NODE_ENV === 'production' ? productionFormat : developmentFormat;
 
 // Export the middleware
 export const requestLogger = morgan(morganFormat, {

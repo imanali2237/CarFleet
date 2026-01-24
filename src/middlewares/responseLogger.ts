@@ -5,11 +5,7 @@ import logger from '../config/logger.config';
  * Middleware to log response details
  * Captures response body and additional metadata
  */
-export const responseLogger = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const responseLogger = (req: Request, res: Response, next: NextFunction): void => {
   // Store original send function
   const originalSend = res.send;
   const startTime = Date.now();
@@ -69,7 +65,7 @@ export const responseLogger = (
  * Sanitize request body to remove sensitive information
  */
 const sanitizeRequestBody = (body: any): any => {
-  if (! body || typeof body !== 'object') return body;
+  if (!body || typeof body !== 'object') return body;
 
   const sanitized = { ...body };
   const sensitiveFields = [
@@ -101,7 +97,7 @@ const sanitizeResponseBody = (body: any, statusCode: number): any => {
     return { logged: false, reason: 'Success response - body not logged in production' };
   }
 
-  if (! body) return null;
+  if (!body) return null;
 
   // Convert to string and limit size
   let stringified = JSON.stringify(body);
@@ -121,18 +117,13 @@ const sanitizeResponseBody = (body: any, statusCode: number): any => {
 /**
  * Error logging middleware
  */
-export const errorLogger = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const errorLogger = (err: Error, req: Request, res: Response, next: NextFunction): void => {
   logger.error('Unhandled Error', {
     type: 'ERROR',
     timestamp: new Date().toISOString(),
     ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
     method: req.method,
-    url: req.originalUrl || req. url,
+    url: req.originalUrl || req.url,
     error: {
       message: err.message,
       stack: err.stack,

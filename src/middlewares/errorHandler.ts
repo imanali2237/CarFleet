@@ -39,7 +39,7 @@ export const errorHandler = (
   else if (err instanceof Prisma.PrismaClientKnownRequestError) {
     statusCode = 400;
     message = 'Database error';
-    
+
     // Unique constraint violation
     if (err.code === 'P2002') {
       const target = (err.meta?.target as string[]) || [];
@@ -50,7 +50,7 @@ export const errorHandler = (
       statusCode = 404;
       message = 'Record not found';
     }
-    
+
     errors = { code: err.code, meta: err.meta };
   }
   // Handle Prisma validation errors
@@ -89,11 +89,7 @@ export const errorHandler = (
 /**
  * 404 Not Found handler
  */
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
   const error = new ApiError(404, `Route ${req.originalUrl} not found`);
   next(error);
 };

@@ -8,7 +8,7 @@ import logger from '../config/logger.config';
  */
 export const setupLogDirectories = (): void => {
   const logDir = path.join(process.cwd(), 'logs');
-  
+
   try {
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
